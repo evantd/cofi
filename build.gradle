@@ -8,8 +8,8 @@
 
 plugins {
     id 'com.github.sherter.google-java-format' version '0.6'
+    id "net.ltgt.apt" version "0.10"
 }
-apply plugin: 'com.github.sherter.google-java-format'
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
@@ -32,6 +32,9 @@ dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:21.0'
     compile 'args4j:args4j:2.33'
+    compile 'com.jimmoores:quandl:1.4.2'
+    compileOnly 'org.immutables:value:2.5.5:annotations'
+    apt 'org.immutables:value:2.5.5'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
