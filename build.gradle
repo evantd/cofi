@@ -6,6 +6,11 @@
  * user guide available at https://docs.gradle.org/4.0.1/userguide/tutorial_java_projects.html
  */
 
+plugins {
+    id 'com.github.sherter.google-java-format' version '0.6'
+}
+apply plugin: 'com.github.sherter.google-java-format'
+
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 
@@ -13,6 +18,8 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 apply plugin: 'idea'
+
+compileJava.dependsOn 'googleJavaFormat'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
