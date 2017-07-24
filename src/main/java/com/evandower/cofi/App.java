@@ -1,13 +1,11 @@
 package com.evandower.cofi;
 
 import com.google.common.collect.ImmutableMap;
-import com.jimmoores.quandl.QuandlSession;
-import com.jimmoores.quandl.RetryPolicy;
-import com.jimmoores.quandl.SessionOptions;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Map;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -58,33 +56,23 @@ public class App {
   }
 
   public void run() {
-    final QuandlSession session =
-        QuandlSession.create(
-            SessionOptions.Builder.withAuthToken(apiKey)
-                .withRetryPolicy(RetryPolicy.createFixedRetryPolicy(3, 10))
-                .build());
-    final ImmutableMap.Builder<String, ImmutableSecurityDataSet> symbolStatsBuilder =
+    final QuandlWikiClient client = ImmutableQuandlWikiClient.builder().apiKey(apiKey).build();
+    final ImmutableMap.Builder<String, SecurityDataSet> symbolStatsBuilder =
         new ImmutableMap.Builder<>();
     for (final String symbol : symbols) {
-      symbolStatsBuilder.put(
-          symbol,
-          ImmutableSecurityDataSet.builder()
-              .session(session)
-              .symbol(symbol)
-              .startDate(START_DATE)
-              .endDate(END_DATE)
-              .build());
+      symbolStatsBuilder.put(symbol, client.dataSet(symbol, START_DATE, END_DATE));
     }
-    final ImmutableMap<String, ImmutableSecurityDataSet> symbolStats = symbolStatsBuilder.build();
+    final Map<String, SecurityDataSet> symbolStats = symbolStatsBuilder.build();
     switch (op) {
       case MONTHLY_AVG_OPEN_CLOSE:
         printMonthlyAverageOpenClose(symbolStats);
     }
   }
 
-  private void printMonthlyAverageOpenClose(
-      final ImmutableMap<String, ImmutableSecurityDataSet> symbolStats) {
-    out.println(symbolStats);
+  private void printMonthlyAverageOpenClose(final Map<String, SecurityDataSet> symbolStats) {
+    for (final SecurityDataSet dataSet : symbolStats.values()) {
+      out.println(dataSet + ": " + dataSet.monthlySummaries());
+    }
   }
 
   public static void main(final String[] args) {
