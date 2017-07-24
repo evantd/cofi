@@ -35,6 +35,8 @@ dependencies {
     compile 'com.jimmoores:quandl:1.4.2'
     compileOnly 'org.immutables:value:2.5.5:annotations'
     apt 'org.immutables:value:2.5.5'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.9'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'

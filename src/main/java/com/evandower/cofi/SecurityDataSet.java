@@ -1,5 +1,6 @@
 package com.evandower.cofi;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.immutables.value.Value;
 
+@JsonSerialize
 @Value.Immutable
 public abstract class SecurityDataSet {
   private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM");

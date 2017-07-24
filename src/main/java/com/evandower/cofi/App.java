@@ -1,11 +1,15 @@
 package com.evandower.cofi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -15,6 +19,8 @@ public class App {
 
   private final PrintStream out;
   private final PrintStream err;
+  private final ObjectMapper jsonMapper =
+      new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
 
   private static final LocalDate START_DATE = LocalDate.of(2017, Month.JANUARY, 1);
   private static final LocalDate END_DATE = LocalDate.of(2017, Month.JUNE, 30);
@@ -55,7 +61,7 @@ public class App {
     }
   }
 
-  public void run() {
+  public void run() throws JsonProcessingException {
     final QuandlWikiClient client = ImmutableQuandlWikiClient.builder().apiKey(apiKey).build();
     final ImmutableMap.Builder<String, SecurityDataSet> symbolStatsBuilder =
         new ImmutableMap.Builder<>();
@@ -69,13 +75,17 @@ public class App {
     }
   }
 
-  private void printMonthlyAverageOpenClose(final Map<String, SecurityDataSet> symbolStats) {
-    for (final SecurityDataSet dataSet : symbolStats.values()) {
-      out.println(dataSet + ": " + dataSet.monthlySummaries());
-    }
+  private void printMonthlyAverageOpenClose(final Map<String, SecurityDataSet> symbolStats)
+      throws JsonProcessingException {
+    final Map<String, List<SecurityMonthlySummary>> monthlySummaries =
+        symbolStats
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().monthlySummaries()));
+    out.println(jsonMapper.writeValueAsString(monthlySummaries));
   }
 
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws JsonProcessingException {
     try {
       new App(System.out, System.err, args).run();
     } catch (final CmdLineException e) {
@@ -84,9 +94,9 @@ public class App {
   }
 
   private enum Op {
-    MONTHLY_AVG_OPEN_CLOSE,
-    MAX_DAILY_PROFIT,
-    BUSY_DAY,
-    BIGGEST_LOSER
+    MONTHLY_AVG_OPEN_CLOSE /*,
+                           MAX_DAILY_PROFIT,
+                           BUSY_DAY,
+                           BIGGEST_LOSER*/
   }
 }
